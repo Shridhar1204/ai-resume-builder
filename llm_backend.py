@@ -5,11 +5,7 @@ from prompts import resume_prompt
 
 load_dotenv()
 
-api_key = os.getenv("GROQ_API_KEY")
-if not api_key:
-    raise ValueError("GROQ_API_KEY not found in .env")
-
-client = Groq(api_key=api_key)
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def generate_resume_content(name, role, education, skills, projects, experience):
     prompt = resume_prompt.format(
@@ -21,14 +17,21 @@ def generate_resume_content(name, role, education, skills, projects, experience)
         experience=experience
     )
 
-    completion = client.chat.completions.create(
-        model="llama-3.1-8b-instant",  # ✅ supported model
+    response = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
         messages=[
-            {"role": "system", "content": "You are an expert resume writer."},
+            {
+                "role": "system",
+                "content": (
+                    "You are a professional resume writer. "
+                    "Write clean, structured, ATS-friendly resumes. "
+                    "Use bullet points and clear section headings."
+                )
+            },
             {"role": "user", "content": prompt}
         ],
-        temperature=0.7,
+        temperature=0.6,
         max_tokens=1200
     )
 
-    return completion.choices[0].message.content
+    return response.choices[0].message.content

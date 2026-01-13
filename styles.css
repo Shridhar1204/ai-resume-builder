@@ -1,0 +1,49 @@
+/* Background */
+.stApp {
+    background: linear-gradient(135deg, #f5f7fa, #e4ecf7);
+    font-family: "Segoe UI", sans-serif;
+}
+
+/* Headings */
+h1 {
+    color: #1f2937;
+    font-weight: 700;
+}
+
+h2, h3 {
+    color: #111827;
+}
+
+/* Card-style containers */
+.block-container {
+    padding: 2rem 3rem;
+}
+
+/* Input fields */
+textarea, input {
+    border-radius: 10px !important;
+    border: 1px solid #d1d5db !important;
+}
+
+/* Buttons */
+.stButton > button {
+    background: linear-gradient(90deg, #2563eb, #1d4ed8);
+    color: white;
+    font-weight: 600;
+    border-radius: 12px;
+    height: 3em;
+    border: none;
+}
+
+.stButton > button:hover {
+    background: linear-gradient(90deg, #1e40af, #1e3a8a);
+}
+
+/* Section divider */
+.section {
+    padding: 1.5rem;
+    border-radius: 16px;
+    background: white;
+    box-shadow: 0px 8px 20px rgba(0,0,0,0.08);
+    margin-bottom: 1.5rem;
+}
