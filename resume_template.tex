@@ -1,0 +1,45 @@
+\documentclass[10pt, letterpaper]{{article}}
+
+\usepackage[top=1.6cm, bottom=1.6cm, left=1.7cm, right=1.7cm]{{geometry}}
+\usepackage{{titlesec}}
+\usepackage{{enumitem}}
+\usepackage[colorlinks=true, urlcolor=black]{{hyperref}}
+\usepackage[T1]{{fontenc}}
+\usepackage[utf8]{{inputenc}}
+
+\raggedright
+\pagestyle{{empty}}
+\setcounter{{secnumdepth}}{{0}}
+\setlength{{\parindent}}{{0pt}}
+
+\titleformat{{\section}}{{\bfseries\large}}{{}}{{0pt}}{{}}[\vspace{{2pt}}\titlerule]
+\titlespacing{{\section}}{{0pt}}{{0.35cm}}{{0.2cm}}
+
+\begin{{document}}
+
+\begin{{center}}
+{{\fontsize{{22pt}}{{22pt}}\selectfont \textbf{{{NAME}}}}} \\
+\vspace{{6pt}}
+{{\large \textbf{{{ROLE}}}}} \\
+\vspace{{8pt}}
+{LOCATION} | \href{{mailto:{EMAIL}}}{{{EMAIL}}} | {PHONE} \\
+\vspace{{2pt}}
+{LINKS}
+\end{{center}}
+
+\section{{Summary}}
+{SUMMARY}
+
+\section{{Technical Skills}}
+{SKILLS}
+
+\section{{Projects}}
+{PROJECTS}
+
+\section{{Education}}
+{EDUCATION}
+
+\section{{Certificates}}
+{CERTIFICATES}
+
+\end{{document}}

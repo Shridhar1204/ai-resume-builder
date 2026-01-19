@@ -1,41 +1,40 @@
-resume_prompt = """
-Create a ONE-PAGE professional resume.
+import json   # ✅ THIS WAS MISSING
 
-RULES:
-- Use ALL CAPS for section headings
-- Use bullet points (•)
-- Keep language concise and professional
-- No filler text
+def resume_prompt(raw_data: dict) -> str:
+    return f"""
+You are an expert resume writer and ATS optimization engine.
 
-STRUCTURE:
+TRANSFORMATION RULES (MANDATORY):
+- Rewrite ALL text to sound professional and impactful
+- Replace weak verbs with strong action verbs
+- Quantify impact where reasonable
+- Improve grammar and clarity
+- Optimize for ATS keywords
+- Do NOT copy sentences directly
+- Rewrite aggressively even if input seems good
+- Do NOT invent fake companies or experience
 
-NAME
-Target Role
+OUTPUT FORMAT:
+Return ONLY valid JSON.
+No markdown.
+No explanation.
+No backticks.
 
-PROFESSIONAL SUMMARY
-• 2–3 strong summary lines
+JSON SCHEMA:
+{{
+  "summary": "Professional rewritten summary",
+  "skills": ["Category: optimized skills"],
+  "projects": [
+    {{
+      "title": "Improved project title",
+      "date": "date",
+      "bullets": ["Impactful bullet", "Impactful bullet"]
+    }}
+  ],
+  "education": "Professional education section",
+  "certificates": "Professional certificates section"
+}}
 
-SKILLS
-• Grouped bullet points
-
-PROJECTS
-Project Name
-• What was built
-• Technologies used
-• Outcome
-
-EXPERIENCE
-(Job Title – Company – Duration) OR Fresher
-• Key responsibilities or achievements
-
-EDUCATION
-• Degree – Institution – Year
-
-INPUT DATA:
-Name: {name}
-Target Role: {role}
-Education: {education}
-Skills: {skills}
-Projects: {projects}
-Experience: {experience}
+RAW INPUT:
+{json.dumps(raw_data, indent=2)}
 """
