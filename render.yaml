@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: ai-resume-builder
+    env: python
+    plan: free
+    buildCommand: |
+      apt-get update
+      apt-get install -y texlive-latex-base texlive-latex-extra texlive-fonts-recommended
+      pip install -r requirements.txt
+    startCommand: streamlit run app.py --server.port $PORT --server.address 0.0.0.0
