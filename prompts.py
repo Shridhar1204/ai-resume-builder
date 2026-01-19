@@ -27,32 +27,44 @@ SKILLS RULES:
 - Each category must have 3–8 skills
 - Format: "Category: skill1, skill2, skill3"
 
+EXPERIENCE RULES:
+- Rewrite experience professionally
+- Use strong action verbs
+- Quantify impact where possible
+- Use 2–4 bullets per role
+- Do NOT invent experience
+
 EDUCATION RULES:
 - Undergraduate must always appear first
-- If senior secondary or secondary data is provided, it MUST be included
+- If school education is provided, it MUST be included
 - Postgraduate appears only if present
 - Education must be written naturally like a resume
 - Do NOT omit provided education entries
 
 OUTPUT FORMAT:
 Return ONLY valid JSON.
-No markdown.
-No explanation.
-No backticks.
 
 JSON SCHEMA:
 {{
-  "summary": "Exactly 3-line professional summary (3 sentences)",
-  "skills": ["Category: comma-separated skills"],
-  "projects": [
+  "summary": "3-line summary",
+  "skills": ["Category: skills"],
+  "experience": [
     {{
-      "title": "Improved project title",
+      "role": "Role",
+      "company": "Company",
       "date": "date",
-      "bullets": ["Impactful bullet", "Impactful bullet"]
+      "bullets": ["bullet", "bullet"]
     }}
   ],
-  "education": "Natural resume-style education section",
-  "certificates": "Professional certificates section"
+  "projects": [
+    {{
+      "title": "Project title",
+      "date": "date",
+      "bullets": ["bullet", "bullet"]
+    }}
+  ],
+  "education": "Natural education section",
+  "certificates": "Certificates section"
 }}
 
 RAW INPUT:
