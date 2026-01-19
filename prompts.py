@@ -1,10 +1,10 @@
-import json   # ✅ THIS WAS MISSING
+import json
 
 def resume_prompt(raw_data: dict) -> str:
     return f"""
 You are an expert resume writer and ATS optimization engine.
 
-TRANSFORMATION RULES (MANDATORY):
+TRANSFORMATION RULES:
 - Rewrite ALL text to sound professional and impactful
 - Replace weak verbs with strong action verbs
 - Quantify impact where reasonable
@@ -14,6 +14,26 @@ TRANSFORMATION RULES (MANDATORY):
 - Rewrite aggressively even if input seems good
 - Do NOT invent fake companies or experience
 
+SUMMARY RULES:
+- Summary MUST be exactly 3 lines
+- Each line must be 1 concise sentence
+- Line 1: Who the candidate is
+- Line 2: Core skills / strengths
+- Line 3: Career goal or impact
+
+SKILLS RULES:
+- Skills MUST be grouped into categories
+- Use 3–5 categories max
+- Each category must have 3–8 skills
+- Format: "Category: skill1, skill2, skill3"
+
+EDUCATION RULES:
+- Undergraduate must always appear first
+- If senior secondary or secondary data is provided, it MUST be included
+- Postgraduate appears only if present
+- Education must be written naturally like a resume
+- Do NOT omit provided education entries
+
 OUTPUT FORMAT:
 Return ONLY valid JSON.
 No markdown.
@@ -22,8 +42,8 @@ No backticks.
 
 JSON SCHEMA:
 {{
-  "summary": "Professional rewritten summary",
-  "skills": ["Category: optimized skills"],
+  "summary": "Exactly 3-line professional summary (3 sentences)",
+  "skills": ["Category: comma-separated skills"],
   "projects": [
     {{
       "title": "Improved project title",
@@ -31,7 +51,7 @@ JSON SCHEMA:
       "bullets": ["Impactful bullet", "Impactful bullet"]
     }}
   ],
-  "education": "Professional education section",
+  "education": "Natural resume-style education section",
   "certificates": "Professional certificates section"
 }}
 

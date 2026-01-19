@@ -21,15 +21,16 @@ def generate_resume_ai(raw_data: dict) -> dict:
             {"role": "system", "content": "You output ONLY raw JSON."},
             {"role": "user", "content": prompt}
         ],
-        temperature=0.2,
-        max_tokens=1500
+        temperature=0.25,
+        max_tokens=1600
     )
 
     content = response.choices[0].message.content.strip()
+
     if not content:
         raise ValueError("AI returned empty response")
 
-    # 🔐 SAFE JSON EXTRACTION
+    # Safe JSON extraction
     try:
         start = content.find("{")
         end = content.rfind("}") + 1
