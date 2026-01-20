@@ -5,7 +5,7 @@ from streamlit_pdf_viewer import pdf_viewer
 from llm_backend import generate_resume_ai
 
 # ================= CONFIG =================
-st.set_page_config(page_title="AI Resume Builder", page_icon="📄", layout="wide")
+st.set_page_config(page_title="AI Resume Builder Pro", page_icon="🚀", layout="wide")
 
 # ================= SESSION STATE =================
 for k in ["projects", "experience", "certificates"]:
@@ -16,271 +16,282 @@ if "resume_ready" not in st.session_state:
     st.session_state.resume_ready = False
 if "ats_score" not in st.session_state:
     st.session_state.ats_score = 0
-if "go_preview" not in st.session_state:
-    st.session_state.go_preview = False
 
-# ================= CSS =================
+# ================= ADVANCED CSS =================
 st.markdown("""
 <style>
-.center-title{font-size:3rem;font-weight:700;text-align:center}
-.center-sub{font-size:1.3rem;text-align:center;color:#666;margin-bottom:2rem}
-.stTabs [data-baseweb="tab"]{font-size:1.3rem;padding:1.1rem 2rem}
-label{font-size:1.05rem;font-weight:600}
-textarea,input{font-size:1.05rem}
+    /* Main Background and Fonts */
+    .main { background-color: #f8f9fa; }
+    .center-title { font-size: 3.8rem; font-weight: 800; text-align: center; color: #1E3A8A; margin-bottom: 0; }
+    .center-sub { font-size: 1.4rem; text-align: center; color: #4B5563; margin-bottom: 3rem; font-style: italic; }
+
+    /* Section Styling */
+    .section-box {
+        background-color: #ffffff;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+        border-left: 5px solid #1E3A8A;
+    }
+
+    /* Input Styling */
+    label p { font-size: 1.15rem !important; font-weight: 700 !important; color: #6B7280 !important; }
+    input, textarea { border-radius: 8px !important; }
+
+    /* Tab Styling */
+    .stTabs [data-baseweb="tab"] { font-size: 1.4rem !important; font-weight: 700 !important; padding: 1rem 3rem !important; }
+    .stTabs [data-baseweb="tab-list"] { gap: 2rem; }
+    
+    /* Button Styling */
+    div.stButton > button:first-child {
+        background-color: #1E3A8A;
+        color: white;
+        border-radius: 10px;
+        padding: 0.6rem 2rem;
+        font-weight: 700;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    div.stButton > button:first-child:hover {
+        background-color: #2563EB;
+        transform: translateY(-2px);
+    }
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<div class='center-title'>AI Resume Builder</div>", unsafe_allow_html=True)
-st.markdown("<div class='center-sub'>Generate a professional resume with pixel-perfect formatting</div>", unsafe_allow_html=True)
+
+
+# ================= SIDEBAR =================
+with st.sidebar:
+    st.image("https://cdn-icons-png.flaticon.com/512/942/942748.png", width=100)
+    st.title("Settings")
+    st.info("💡 **Tip:** Use 2-3 bullet points for experience to keep the resume to one page.")
+    if st.button("🗑️ Reset Form", use_container_width=True):
+        for key in st.session_state.keys(): del st.session_state[key]
+        st.rerun()
+
+# ================= HEADER =================
+st.markdown("<div class='center-title'>🚀 AI Resume Builder</div>", unsafe_allow_html=True)
+st.markdown("<div class='center-sub'>Transform your experience into a pixel-perfect PDF</div>", unsafe_allow_html=True)
 
 # ================= HELPERS =================
 def latex_safe(t):
-    if not t:
-        return ""
+    if not t: return ""
     return (t.replace("—", "--").replace("–", "-")
              .replace("&", r"\&").replace("%", r"\%").replace("$", r"\$")
              .replace("#", r"\#").replace("_", r"\_")
              .replace("{", r"\{").replace("}", r"\}"))
 
-# ================= TABS =================
-tabs = st.tabs(["📝 Build Resume", "📄 Preview & Download"])
-build_tab = tabs[0]
-preview_tab = tabs[1]
+# ================= MAIN TABS =================
+tabs = st.tabs(["📝 Build Your Profile", "📄 Preview & Export"])
+build_tab, preview_tab = tabs[0], tabs[1]
 
-# ================= BUILD TAB =================
 with build_tab:
+    # --- STEP 1: PERSONAL ---
+    st.subheader("👤 Step 1: Personal Information")
+    with st.container():
+        c1, c2 = st.columns(2)
+        with c1:
+            name = st.text_input("Full Name", placeholder="John Doe")
+            role = st.text_input("Professional Title", placeholder="Software Engineer")
+        with c2:
+            email = st.text_input("Email Address", placeholder="john@example.com")
+            phone = st.text_input("Phone Number", placeholder="+1 234 567 890")
+        location = st.text_input("Location (City, Country)", placeholder="New York, USA")
 
-    # -------- PERSONAL --------
-    st.subheader("Personal Information")
-    name = st.text_input("Full Name", key="name")
-    role = st.text_input("Professional Title", key="role")
-    location = st.text_input("Location", key="loc_main")
-    email = st.text_input("Email", key="email")
-    phone = st.text_input("Phone", key="phone")
+    # --- STEP 2: LINKS ---
+    st.subheader("🔗 Step 2: Digital Presence")
+    l_cols = st.columns(3)
+    with l_cols[0]: linkedin = st.text_input("LinkedIn URL", placeholder="linkedin.com/in/...")
+    with l_cols[1]: github = st.text_input("GitHub URL", placeholder="github.com/...")
+    with l_cols[2]: portfolio = st.text_input("Portfolio URL", placeholder="portfolio.com")
 
-    # -------- LINKS --------
-    st.subheader("Links (optional)")
-    l1, l2, l3 = st.tabs(["LinkedIn", "GitHub", "Portfolio"])
-    with l1:
-        linkedin = st.text_input("LinkedIn URL", key="linkedin")
-    with l2:
-        github = st.text_input("GitHub URL", key="github")
-    with l3:
-        portfolio = st.text_input("Portfolio URL", key="portfolio")
-
-    st.markdown("---")
-
-    # -------- SUMMARY --------
-    st.markdown("### **Professional Summary**")
-    summary = st.text_area("Summary", key="summary", height=150, label_visibility="collapsed")
-
-    # -------- SKILLS --------
-    st.markdown("### **Technical Skills**")
-    skills = st.text_area("Skills", key="skills", height=120, label_visibility="collapsed")
-
-    # -------- EXPERIENCE --------
+    # --- STEP 3: CONTENT ---
     st.divider()
-    st.subheader("Experience")
-    if st.button("➕ Add Experience", key="add_exp"):
-        st.session_state.experience.append(
-            {"role": "", "company": "", "date": "", "bullets": ["", ""]}  # ✅ ONLY 2 BULLETS
-        )
+    st.subheader("✍️ Step 3: Professional Content")
+    
+    st.write("### **Summary**")
+    summary = st.text_area("Summary", height=120, label_visibility="collapsed", placeholder="Brief overview of your career...")
+
+    st.write("### **Key Skills**")
+    skills = st.text_area("Skills", height=100, label_visibility="collapsed", placeholder="Python, AWS, Project Management, etc.")
+
+    # --- STEP 4: EXPERIENCE ---
+    st.divider()
+    col_exp, col_btn = st.columns([3, 1])
+    with col_exp: st.subheader("💼 Step 4: Work Experience")
+    with col_btn: 
+        if st.button("➕ Add Work", use_container_width=True):
+            st.session_state.experience.append({"role": "", "company": "", "date": "", "bullets": ["", ""]})
 
     for i, e in enumerate(st.session_state.experience):
-        with st.expander(f"Experience {i+1}", expanded=True):
-            e["role"] = st.text_input("Role", e["role"], key=f"er{i}")
-            e["company"] = st.text_input("Company", e["company"], key=f"ec{i}")
-            e["date"] = st.text_input("Duration", e["date"], key=f"ed{i}")
-            for j in range(2):  # ✅ ONLY 2 BULLETS
-                e["bullets"][j] = st.text_input(f"Bullet {j+1}", e["bullets"][j], key=f"eb{i}{j}")
-
-    # -------- PROJECTS --------
+        with st.expander(f"Work Experience {i+1} — {e['company'] if e['company'] else 'New'}", expanded=True):
+            ec1, ec2 = st.columns(2)
+            with ec1: e["role"] = st.text_input("Role", key=f"er{i}")
+            with ec2: e["company"] = st.text_input("Company", key=f"ec{i}")
+            e["date"] = st.text_input("Duration (e.g., Jan 2020 - Present)", key=f"ed{i}")
+            for j in range(2):
+                e["bullets"][j] = st.text_input(f"Key Achievement {j+1}", key=f"eb{i}{j}")
+    
+    # --- STEP 5: PROJECTS ---
     st.divider()
-    st.subheader("Projects")
-    if st.button("➕ Add Project", key="add_proj"):
-        st.session_state.projects.append(
-            {"title": "", "date": "", "bullets": ["", "", ""]}
-        )
+    col_proj, col_pbtn = st.columns([3, 1])
+    with col_proj:
+       st.subheader("🚀 Step 5: Projects")
+    with col_pbtn:
+       if st.button("➕ Add Project", use_container_width=True):
+        st.session_state.projects.append({
+            "title": "", "date": "", "bullets": ["", "", ""]
+        })
 
     for i, p in enumerate(st.session_state.projects):
-        with st.expander(f"Project {i+1}", expanded=True):
-            p["title"] = st.text_input("Title", p["title"], key=f"pt{i}")
-            p["date"] = st.text_input("Date", p["date"], key=f"pd{i}")
-            for j in range(3):
-                p["bullets"][j] = st.text_input(f"Bullet {j+1}", p["bullets"][j], key=f"pb{i}{j}")
+        with st.expander(f"Project {i+1} — {p['title'] if p['title'] else 'New'}", expanded=True):
+          pc1, pc2 = st.columns(2)
+        with pc1:
+            p["title"] = st.text_input("Project Title", key=f"pt{i}")
+        with pc2:
+            p["date"] = st.text_input("Project Date", key=f"pd{i}")
+        for j in range(3):
+            p["bullets"][j] = st.text_input(
+                f"Project Highlight {j+1}", key=f"pb{i}{j}"
+            )
 
-    # -------- EDUCATION --------
+
+    # --- STEP 6: EDUCATION ---
     st.divider()
-    st.subheader("Education")
-    ug_tab, pg_tab, school_tab = st.tabs(["Undergraduate", "Postgraduate", "School"])
+    st.subheader("🎓 Step 6: Education")
+    etabs = st.tabs(["🏫 University", "🏫 Schooling"])
+    
+    with etabs[0]:
+        st.write("#### Undergraduate / Postgraduate")
+        uc1, uc2 = st.columns(2)
+        with uc1:
+            ug_degree = st.text_input("Degree Name", key="ug_deg")
+            ug_college = st.text_input("Institution", key="ug_col")
+        with uc2:
+            ug_duration = st.text_input("Duration (Years)", key="ug_dur")
+            ug_gpa = st.text_input("GPA / Grade", key="ug_gpa")
+        ug_location = st.text_input("Institution Location", key="ug_loc")
 
-    with ug_tab:
-        ug_degree = st.text_input("Degree", key="ug_deg")
-        ug_college = st.text_input("College", key="ug_col")
-        ug_location = st.text_input("Location", key="ug_loc")
-        ug_duration = st.text_input("Duration", key="ug_dur")
-        ug_gpa = st.text_input("GPA", key="ug_gpa")
+    with etabs[1]:
+        st.warning("Enter details for Class X and XII")
+        sc1, sc2 = st.columns(2)
+        with sc1:
+            st.write("**Senior Secondary (XII)**")
+            ss_school = st.text_input("XII School Name", key="ss_s")
+            ss_board = st.text_input("XII Board", key="ss_b")
+            ss_pct = st.text_input("XII Percentage", key="ss_p")
+            ss_year = st.text_input("XII Year", key="ss_y")
+        with sc2:
+            st.write("**Secondary (X)**")
+            sec_school = st.text_input("X School Name", key="sec_s")
+            sec_board = st.text_input("X Board", key="sec_b")
+            sec_pct = st.text_input("X Percentage", key="sec_p")
+            sec_year = st.text_input("X Year", key="sec_y")
 
-    with pg_tab:
-        pg_degree = st.text_input("PG Degree", key="pg_deg")
-        pg_college = st.text_input("PG College", key="pg_col")
-        pg_duration = st.text_input("PG Duration", key="pg_dur")
-        pg_gpa = st.text_input("PG GPA", key="pg_gpa")
-
-    with school_tab:
-        st.write("#### Senior Secondary (Class XII)")
-        ss_school = st.text_input("School Name", key="ss_school")
-        col_ss1, col_ss2, col_ss3 = st.columns(3)
-        with col_ss1: ss_board = st.text_input("Board (e.g. CBSE)", key="ss_board")
-        with col_ss2: ss_year = st.text_input("Year", key="ss_year")
-        with col_ss3: ss_pct = st.text_input("Percentage/CGPA", key="ss_pct")
-        
-        st.divider()
-        
-        st.write("#### Secondary (Class X)")
-        sec_school = st.text_input("School Name ", key="sec_school")
-        col_s1, col_s2, col_s3 = st.columns(3)
-        with col_s1: sec_board = st.text_input("Board (e.g. ICSE)", key="sec_board")
-        with col_s2: sec_year = st.text_input("Year ", key="sec_year")
-        with col_s3: sec_pct = st.text_input("Percentage/CGPA ", key="sec_pct")
-
-    # -------- CERTIFICATES --------
+    # --- STEP 7: CERTIFICATES ---
     st.divider()
-    st.subheader("Certificates")
-    if st.button("➕ Add Certificate", key="add_cert"):
-        st.session_state.certificates.append({"name": "", "link": ""})
+    col_cert, col_cbtn = st.columns([3, 1])
+    with col_cert: st.subheader("📜 Step 7: Certificates")
+    with col_cbtn: 
+        if st.button("➕ Add Certificate", use_container_width=True):
+            st.session_state.certificates.append({"name": "", "link": ""})
 
     for i, c in enumerate(st.session_state.certificates):
-        with st.expander(f"Certificate {i+1}", expanded=True):
-            c["name"] = st.text_input("Certificate Name", c["name"], key=f"cn{i}")
-            c["link"] = st.text_input("Certificate Link", c["link"], key=f"cl{i}")
+        with st.expander(f"Certificate {i+1}"):
+            c["name"] = st.text_input("Certification Name", key=f"cn{i}")
+            c["link"] = st.text_input("Verification Link", key=f"cl{i}")
 
-    # -------- GENERATE --------
-    if st.button("🚀 Generate Resume", type="primary"):
-        education = {
-            "undergraduate": {
-                "degree": ug_degree, "college": ug_college,
-                "location": ug_location, "duration": ug_duration, "gpa": ug_gpa
+   # -------- GENERATE BUTTON --------
+    st.divider()
+    if st.button("🚀 Generate Resume", type="primary", use_container_width=True):
+        with st.spinner("Generating with AI..."):
+            education_data = {
+                "undergraduate": {"degree": ug_degree, "college": ug_college, "location": ug_location, "duration": ug_duration, "gpa": ug_gpa},
+                "senior_secondary": {"school": ss_school, "year": ss_year, "board": ss_board, "pct": ss_pct},
+                "secondary": {"school": sec_school, "year": sec_year, "board": sec_board, "pct": sec_pct}
             }
-        }
-        if pg_degree:
-            education["postgraduate"] = {
-                "degree": pg_degree, "college": pg_college,
-                "duration": pg_duration, "gpa": pg_gpa
+
+            raw_data = {
+                "summary": summary, "skills": skills, "experience": st.session_state.experience,
+                "projects": st.session_state.projects, "education": education_data,
+                "certificates": st.session_state.certificates
             }
-        if ss_school:
-            education["senior_secondary"] = {"school": ss_school, "year": ss_year}
-        if sec_school:
-            education["secondary"] = {"school": sec_school, "year": sec_year}
 
-        raw_data = {
-            "summary": summary,
-            "skills": skills,
-            "experience": st.session_state.experience,
-            "projects": st.session_state.projects,
-            "education": education,
-            "certificates": st.session_state.certificates
-        }
+            ai = generate_resume_ai(raw_data)
 
-        ai = generate_resume_ai(raw_data)
+            # --- BUILD LaTeX EXPERIENCE ---
+            exp_tex = ""
+            for e in ai["experience"]:
+                exp_tex += f"\\textbf{{{latex_safe(e['role'])}}} -- {latex_safe(e['company'])} \\hfill {latex_safe(e['date'])} \\\\\n\\begin{{itemize}}\n"
+                for b in e["bullets"][:2]:
+                    exp_tex += f"\\item {latex_safe(b)}\n"
+                exp_tex += "\\end{itemize}\n"
 
-        # ================= BUILD LaTeX =================
-        experience_tex = ""
-        for e in ai["experience"]:
-            experience_tex += f"\\textbf{{{latex_safe(e['role'])}}} -- {latex_safe(e['company'])} \\hfill {latex_safe(e['date'])} \\\\\n\\begin{{itemize}}\n"
-            for b in e["bullets"][:2]:  # ✅ FORCE 2 BULLETS
-                experience_tex += f"\\item {latex_safe(b)}\n"
-            experience_tex += "\\end{itemize}\n"
+            # --- BUILD LaTeX PROJECTS ---
+            proj_tex = ""
+            for p in ai["projects"]:
+                proj_tex += f"\\textbf{{{latex_safe(p['title'])}}} \\hfill {latex_safe(p['date'])} \\\\\n\\begin{{itemize}}\n"
+                for b in p["bullets"]:
+                    proj_tex += f"\\item {latex_safe(b)}\n"
+                proj_tex += "\\end{itemize}\n"
 
-        projects_tex = ""
-        for p in ai["projects"]:
-            projects_tex += f"\\textbf{{{latex_safe(p['title'])}}} \\hfill {latex_safe(p['date'])} \\\\\n\\begin{{itemize}}\n"
-            for b in p["bullets"]:
-                projects_tex += f"\\item {latex_safe(b)}\n"
-            projects_tex += "\\end{itemize}\n"
+            # --- BUILD LaTeX EDUCATION ---
+            edu_items = []
+            if ug_degree:
+                edu_items.append(f"\\textbf{{{latex_safe(ug_degree)}}} -- {latex_safe(ug_college)}, {latex_safe(ug_location)} \\hfill {latex_safe(ug_duration)} \\\\ GPA: {latex_safe(ug_gpa)}")
+            if ss_school:
+                edu_items.append(f"\\textbf{{Class XII ({latex_safe(ss_board)})}} -- {latex_safe(ss_school)} \\hfill {latex_safe(ss_year)} \\\\ Percentage: {latex_safe(ss_pct)}")
+            if sec_school:
+                edu_items.append(f"\\textbf{{Class X ({latex_safe(sec_board)})}} -- {latex_safe(sec_school)} \\hfill {latex_safe(sec_year)} \\\\ Percentage: {latex_safe(sec_pct)}")
+            edu_tex = " \\\\\n\\vspace{4pt}\n".join(edu_items)
 
-        # ================= BUILD EDUCATION LaTeX =================
-        edu_items = []
-        
-        # Undergraduate
-        if ug_degree:
-            edu_items.append(f"\\textbf{{{latex_safe(ug_degree)}}} -- {latex_safe(ug_college)}, {latex_safe(ug_location)} \\hfill {latex_safe(ug_duration)} \\\\ GPA: {latex_safe(ug_gpa)}")
-        
-        # Postgraduate
-        if pg_degree:
-            edu_items.append(f"\\textbf{{{latex_safe(pg_degree)}}} -- {latex_safe(pg_college)} \\hfill {latex_safe(pg_duration)} \\\\ GPA: {latex_safe(pg_gpa)}")
-            
-        # Senior Secondary
-        if ss_school:
-            ss_line = f"\\textbf{{Class XII ({latex_safe(ss_board)})}} -- {latex_safe(ss_school)} \\hfill {latex_safe(ss_year)} \\\\ Percentage: {latex_safe(ss_pct)}"
-            edu_items.append(ss_line)
-            
-        # Secondary
-        if sec_school:
-            sec_line = f"\\textbf{{Class X ({latex_safe(sec_board)})}} -- {latex_safe(sec_school)} \\hfill {latex_safe(sec_year)} \\\\ Percentage: {latex_safe(sec_pct)}"
-            edu_items.append(sec_line)
+            # --- BUILD LaTeX CERTIFICATES ---
+            cert_tex = ""
+            for c in st.session_state.certificates:
+                if c["name"]:
+                    if c["link"]:
+                        link = c["link"] if c["link"].startswith("http") else f"https://{c['link']}"
+                        cert_tex += f"\\href{{{link}}}{{{latex_safe(c['name'])}}} \\\\\n"
+                    else:
+                        cert_tex += f"{latex_safe(c['name'])} \\\\\n"
 
-        education_tex = " \\\\\n\\vspace{4pt}\n".join(edu_items)
+            # --- BUILD LaTeX LINKS ---
+            l_list = []
+            if linkedin: l_list.append(f"\\href{{{linkedin}}}{{LinkedIn}}")
+            if github: l_list.append(f"\\href{{{github}}}{{GitHub}}")
+            if portfolio: l_list.append(f"\\href{{{portfolio}}}{{Portfolio}}")
+            links_tex = " \\quad | \\quad ".join(l_list)
 
-# ================= BUILD CERTIFICATES LaTeX =================
-        certificates_tex = ""
-        for c in st.session_state.certificates:
-            if c["name"]:
-                # If there is a link, wrap the name in a clickable href
-                if c["link"]:
-                    # Ensure the link starts with http if not present
-                    clean_link = c["link"] if c["link"].startswith("http") else f"https://{c['link']}"
-                    certificates_tex += f"\\href{{{clean_link}}}{{{latex_safe(c['name'])}}} \\\\\n"
-                else:
-                    certificates_tex += f"{latex_safe(c['name'])} \\\\\n"
+            # --- ATS SCORE ---
+            st.session_state.ats_score = min(95, 45 + len(ai["skills"]) * 2 + len(st.session_state.experience) * 7)
 
-        links = []
-        if linkedin: links.append(f"\\href{{{linkedin}}}{{LinkedIn}}")
-        if github: links.append(f"\\href{{{github}}}{{GitHub}}")
-        if portfolio: links.append(f"\\href{{{portfolio}}}{{Portfolio}}")
-        links_tex = " \\quad | \\quad ".join(links)
+            # --- COMPILE ---
+            template = Path("resume_template.tex").read_text()
+            tex = template.format(
+                NAME=name, ROLE=role, LOCATION=location, EMAIL=email, PHONE=phone, LINKS=links_tex,
+                SUMMARY=latex_safe(ai["summary"]), SKILLS=" \\\\\n".join([latex_safe(s) for s in ai["skills"]]),
+                EXPERIENCE=exp_tex, PROJECTS=proj_tex, EDUCATION=edu_tex, CERTIFICATES=cert_tex
+            )
+            Path("resume.tex").write_text(tex)
+            subprocess.run(["pdflatex", "-interaction=nonstopmode", "resume.tex"], stdout=subprocess.DEVNULL)
+            st.session_state.resume_ready = True
+            st.success("✅ Resume Ready!")
+            st.balloons()
 
-        st.session_state.ats_score = min(
-            95,
-            40 + len(ai["skills"]) * 3 + len(st.session_state.experience) * 8 + len(st.session_state.projects) * 6
-        )
-
-        template = Path("resume_template.tex").read_text()
-        tex = template.format(
-            NAME=name,
-            ROLE=role,
-            LOCATION=location,
-            EMAIL=email,
-            PHONE=phone,
-            LINKS=links_tex,
-            SUMMARY=latex_safe(ai["summary"]),
-            SKILLS=" \\\\\n".join([latex_safe(s) for s in ai["skills"]]),
-            EXPERIENCE=experience_tex,
-            PROJECTS=projects_tex,
-            EDUCATION=education_tex,
-            CERTIFICATES=certificates_tex
-        )
-
-        # ... (All your LaTeX build and subprocess code stays here) ...
-
-        Path("resume.tex").write_text(tex)
-        subprocess.run(["pdflatex", "-interaction=nonstopmode", "resume.tex"], stdout=subprocess.DEVNULL)
-
-        # ✅ Set state to True
-        st.session_state.resume_ready = True
-        
-        # ✅ Show success message (Remove st.rerun() so this actually stays visible)
-        st.success("✅ Resume generated successfully! Click the '📄 Preview & Download' tab above.")
-        st.balloons()
 # ================= PREVIEW TAB =================
 with preview_tab:
     if st.session_state.resume_ready:
-        st.subheader("ATS Score")
-        st.progress(st.session_state.ats_score / 100)
-        st.caption(f"{st.session_state.ats_score}% match for ATS systems")
-
-        pdf_viewer("resume.pdf", width=800, key=str(Path("resume.pdf").stat().st_mtime))
-        with open("resume.pdf", "rb") as f:
-            st.download_button("⬇ Download Resume", f, "Resume.pdf")
+        st.success("### Your Professional Resume is Ready!")
+        c_p1, c_p2 = st.columns([2, 1])
+        with c_p1:
+            pdf_viewer("resume.pdf", width=800)
+        with c_p2:
+            st.write("#### 📊 Analysis")
+            st.metric("ATS Compatibility", f"{st.session_state.ats_score}%")
+            st.write("---")
+            with open("resume.pdf", "rb") as f:
+                st.download_button("📥 Download PDF", f, file_name=f"Resume_{name}.pdf", use_container_width=True)
     else:
-        st.info("Generate resume first")
+        st.info("👋 **Start by filling in your details in the 'Build Your Profile' tab!**")
